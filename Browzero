@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import re
+from PyQt5.QtCore import QUrl, QRect, QPoint, QSize, QByteArray, Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestInfo
+import socket
+import http.client
+
+def yggdrasil_dns_resolver(domain_name: str) -> str:
+    try:
+        addr_info = socket.getaddrinfo(domain_name, None, socket.AF_INET6)
+        for res in addr_info:
+            af, _, _, _, sockaddr = res
+            if af == socket.AF_INET6 and sockaddr[0].startswith('fc'):
+                return sockaddr[0]
+        return ""
+    except socket.gaierror:
+        return ""
+
+def resolve_yggdrasil_domain(url: str) -> str:
+    parsed_url = QUrl(url)
+    domain_name = parsed_url.host()
+    ygg_ip = yggdrasil_dns_resolver(domain_name)
+    if ygg_ip:
+        resolved_url = QUrl(url)
+        resolved_url.setHost(ygg_ip)
+        return resolved_url.toString()
+    return url
+
+class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
+    def interceptRequest(self, info: QWebEngineUrlRequestInfo):
+        url = info.requestUrl().toString()
+        if not self.verify_url(url):
+            info.block(True)
+
+    def verify_url(self, url):
+        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|ygg:\/\/.*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
+        if "ipfs" in url and "127.0.0.1" not in url:
+            return False
+        return bool(re.match(pattern, url))
+
+class Browzero(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Browzero")
+
+        # Load last saved geometry from file
+        geometry_file_path = os.path.expanduser("~/BrowzeroGeometry.txt")
+        last_geometry = QByteArray()
+        try:
+            with open(geometry_file_path, "rb") as f:
+                last_geometry = QByteArray(f.read())
+        except FileNotFoundError:
+            pass
+
+        # Set window geometry
+        if not last_geometry.isEmpty():
+            self.restoreGeometry(last_geometry)
+        else:
+            screen_resolution = QApplication.desktop().screenGeometry()
+            width, height = screen_resolution.width(), screen_resolution.height()
+            x = (width - 1920) / 2
+            y = (height - 1080) / 2
+            self.setGeometry(x, y, 1920, 1080)
+
+        self.view = QWebEngineView()
+        self.view.loadFinished.connect(self.handle_load_finished)
+
+        self.setCentralWidget(self.view)
+
+        # Add network interceptor
+        self.interceptor = NetworkInterceptor()
+        self.view.page().profile().setRequestInterceptor(self.interceptor)
+
+    def handle_load_finished(self):
+        url = self.view.url().toString()
+        resolved_url = resolve_yggdrasil_domain(url)
+        if self.verify_url(resolved_url):
+            history_file_path = os.path.expanduser("~/BrowzeroHistory.txt")
+            with open(history_file_path, "w") as f:
+                f.write(resolved_url)
+
+            # Save current window geometry to file
+            geometry_file_path = os.path.expanduser("~/BrowzeroGeometry.txt")
+            with open(geometry_file_path, "wb") as f:
+                f.write(self.saveGeometry())
+
+    def verify_url(self, url):
+        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|ygg:\/\/.*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
+        if "ipfs" in url and "127.0.0.1" not in url:
+            return False
+        return bool(re.match(pattern, url))
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_F11:
+            if self.isFullScreen():
+                self.showNormal()
+            else:
+                self.showFullScreen()
+        else:
+            super().keyPressEvent(event)
+
+def main():
+    app = QApplication(sys.argv)
+    window = Browzero()
+
+    history_file_path = os.path.expanduser("~/BrowzeroHistory.txt")
+    last_site = "http://127.0.0.1:43110/"
+    try:
+        with open(history_file_path, "r") as f:
+            last_site = f.read().strip()
+    except FileNotFoundError:
+        pass
+
+    window.view.load(QUrl(last_site))
+    window.showFullScreen()
+
+    # Center window vertically
+    screen_resolution = QApplication.desktop().screenGeometry()
+    width, height = screen_resolution.width(), screen_resolution.height()
+    x = (width - window.width()) / 2
+    y = (height - window.height()) / 2
+    window.move(x, y)
+
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
