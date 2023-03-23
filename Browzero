@@ -38,9 +38,7 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
             info.block(True)
 
     def verify_url(self, url):
-        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|ygg:\/\/.*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
-        if "ipfs" in url and "127.0.0.1" not in url:
-            return False
+        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
         return bool(re.match(pattern, url))
 
 class Browzero(QMainWindow):
@@ -91,9 +89,7 @@ class Browzero(QMainWindow):
                 f.write(self.saveGeometry())
 
     def verify_url(self, url):
-        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|ygg:\/\/.*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
-        if "ipfs" in url and "127.0.0.1" not in url:
-            return False
+        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
         return bool(re.match(pattern, url))
 
     def keyPressEvent(self, event):
