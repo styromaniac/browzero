@@ -40,7 +40,7 @@ class Browzero(QMainWindow):
             screen_resolution = QApplication.desktop().screenGeometry()
             width, height = screen_resolution.width(), screen_resolution.height()
             x = (width - 1920) / 2
-            y = (height - 1080) / 2
+            y = (height - 1080)
             self.setGeometry(x, y, 1920, 1080)
 
         self.view = QWebEngineView()
