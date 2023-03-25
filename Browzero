@@ -7,29 +7,6 @@ from PyQt5.QtCore import QUrl, QRect, QPoint, QSize, QByteArray, Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestInfo
-import socket
-import http.client
-
-def yggdrasil_dns_resolver(domain_name: str) -> str:
-    try:
-        addr_info = socket.getaddrinfo(domain_name, None, socket.AF_INET6)
-        for res in addr_info:
-            af, _, _, _, sockaddr = res
-            if af == socket.AF_INET6 and sockaddr[0].startswith('fc'):
-                return sockaddr[0]
-        return ""
-    except socket.gaierror:
-        return ""
-
-def resolve_yggdrasil_domain(url: str) -> str:
-    parsed_url = QUrl(url)
-    domain_name = parsed_url.host()
-    ygg_ip = yggdrasil_dns_resolver(domain_name)
-    if ygg_ip:
-        resolved_url = QUrl(url)
-        resolved_url.setHost(ygg_ip)
-        return resolved_url.toString()
-    return url
 
 class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, info: QWebEngineUrlRequestInfo):
@@ -77,11 +54,10 @@ class Browzero(QMainWindow):
 
     def handle_load_finished(self):
         url = self.view.url().toString()
-        resolved_url = resolve_yggdrasil_domain(url)
-        if self.verify_url(resolved_url):
+        if self.verify_url(url):
             history_file_path = os.path.expanduser("~/BrowzeroHistory.txt")
             with open(history_file_path, "w") as f:
-                f.write(resolved_url)
+                f.write(url)
 
             # Save current window geometry to file
             geometry_file_path = os.path.expanduser("~/BrowzeroGeometry.txt")
