@@ -9,14 +9,23 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestInfo
 
 class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
+    ALLOWED_NETWORKS = [
+        r"http://127\.0\.0\.1:43110/.*",
+        r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*",
+        r"http://.*\.ipfs\.localhost:8080/.*",
+        r"http://.*\.ipns\.localhost:8080/.*",
+    ]
+
     def interceptRequest(self, info: QWebEngineUrlRequestInfo):
         url = info.requestUrl().toString()
         if not self.verify_url(url):
             info.block(True)
 
     def verify_url(self, url):
-        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
-        return bool(re.match(pattern, url))
+        for pattern in self.ALLOWED_NETWORKS:
+            if re.match(pattern, url):
+                return True
+        return False
 
 class Browzero(QMainWindow):
     def __init__(self):
@@ -40,7 +49,7 @@ class Browzero(QMainWindow):
             screen_resolution = QApplication.desktop().screenGeometry()
             width, height = screen_resolution.width(), screen_resolution.height()
             x = (width - 1920) / 2
-            y = (height - 1080)
+            y = (height - 1080) / 2
             self.setGeometry(x, y, 1920, 1080)
 
         self.view = QWebEngineView()
