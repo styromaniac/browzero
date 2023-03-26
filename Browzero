@@ -11,10 +11,9 @@ from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor, QWebEngineUrl
 
 class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
     ALLOWED_NETWORKS = [
-        r"http://127\.0\.0\.1:43110/.*",
-        r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*",
-        r"http://.*\.ipfs\.localhost:8080/.*",
-        r"http://.*\.ipns\.localhost:8080/.*",
+        (r"http://127\.0\.0\.1:43110/.*", "ZeroNet"),
+        (r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*", "Yggdrasil"),
+        (r"http://.*\.(ipfs|ipns)\.localhost:8080/.*", "IPFS"),
     ]
 
     def interceptRequest(self, info: QWebEngineUrlRequestInfo):
@@ -23,8 +22,8 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
             info.block(True)
 
     def verify_url(self, url):
-        url_types = self.ALLOWED_NETWORKS
-        pattern = "|".join(url_types)
+        url_patterns = [network[0] for network in NetworkInterceptor.ALLOWED_NETWORKS]
+        pattern = "|".join(url_patterns)
         return bool(re.match(pattern, url))
 
 
@@ -64,7 +63,7 @@ class Browzero(QMainWindow):
 
     def handle_load_finished(self):
         url = self.view.url().toString()
-        if self.verify_url(url):
+        if self.interceptor.verify_url(url):  # Change this line
             history_file_path = os.path.expanduser("~/BrowzeroHistory.txt")
             with open(history_file_path, "w") as f:
                 f.write(url)
@@ -73,11 +72,6 @@ class Browzero(QMainWindow):
             geometry_file_path = os.path.expanduser("~/BrowzeroGeometry.txt")
             with open(geometry_file_path, "wb") as f:
                 f.write(self.saveGeometry())
-
-    def verify_url(self, url):
-        url_types = NetworkInterceptor.ALLOWED_NETWORKS
-        pattern = "|".join(url_types)
-        return bool(re.match(pattern, url))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_F11:
