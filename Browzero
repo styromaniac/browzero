@@ -15,6 +15,7 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
         ("Yggdrasil", r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*"),
         ("IPFS", r"http://.*\.(ipfs|ipns)\.localhost:8080/.*"),
         ("Tor", r"https?://.*\.onion.*"),
+        ("Lokinet", r"http://.*\.loki/.*"),
     ]
 
     def interceptRequest(self, info: QWebEngineUrlRequestInfo):
