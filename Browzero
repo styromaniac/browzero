@@ -22,10 +22,9 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
             info.block(True)
 
     def verify_url(self, url):
-        for pattern in self.ALLOWED_NETWORKS:
-            if re.match(pattern, url):
-                return True
-        return False
+        url_types = self.ALLOWED_NETWORKS
+        pattern = "|".join(url_types)
+        return bool(re.match(pattern, url))
 
 class Browzero(QMainWindow):
     def __init__(self):
@@ -74,12 +73,7 @@ class Browzero(QMainWindow):
                 f.write(self.saveGeometry())
 
     def verify_url(self, url):
-        url_types = [
-            r"http://127\.0\.0\.1:43110/.*",
-            r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*",
-            r"http://.*\.ipfs\.localhost:8080/.*",
-            r"http://.*\.ipns\.localhost:8080/.*"
-        ]
+        url_types = NetworkInterceptor.ALLOWED_NETWORKS
         pattern = "|".join(url_types)
         return bool(re.match(pattern, url))
 
