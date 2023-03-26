@@ -48,8 +48,8 @@ class Browzero(QMainWindow):
         else:
             screen_resolution = QApplication.desktop().screenGeometry()
             width, height = screen_resolution.width(), screen_resolution.height()
-            x = (width - 1920) / 2
-            y = (height - 1080) / 2
+            x = int((width - 1920) / 2)
+            y = int((height - 1080) / 2)
             self.setGeometry(x, y, 1920, 1080)
 
         self.view = QWebEngineView()
@@ -59,7 +59,7 @@ class Browzero(QMainWindow):
 
         # Add network interceptor
         self.interceptor = NetworkInterceptor()
-        self.view.page().profile().setRequestInterceptor(self.interceptor)
+        self.view.page().setUrlRequestInterceptor(self.interceptor)
 
     def handle_load_finished(self):
         url = self.view.url().toString()
@@ -74,7 +74,13 @@ class Browzero(QMainWindow):
                 f.write(self.saveGeometry())
 
     def verify_url(self, url):
-        pattern = r"^(http://127\.0\.0\.1:43110/.*|http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*|http://.*\.ipfs\.localhost:8080/.*|http://.*\.ipns\.localhost:8080/.*)"
+        url_types = [
+            r"http://127\.0\.0\.1:43110/.*",
+            r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*",
+            r"http://.*\.ipfs\.localhost:8080/.*",
+            r"http://.*\.ipns\.localhost:8080/.*"
+        ]
+        pattern = "|".join(url_types)
         return bool(re.match(pattern, url))
 
     def keyPressEvent(self, event):
@@ -104,8 +110,8 @@ def main():
     # Center window vertically
     screen_resolution = QApplication.desktop().screenGeometry()
     width, height = screen_resolution.width(), screen_resolution.height()
-    x = (width - window.width()) / 2
-    y = (height - window.height()) / 2
+    x = int((width - window.width()) / 2)
+    y = int((height - window.height()) / 2)
     window.move(x, y)
 
     sys.exit(app.exec_())
