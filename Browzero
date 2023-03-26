@@ -11,9 +11,9 @@ from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor, QWebEngineUrl
 
 class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
     ALLOWED_NETWORKS = [
-        (r"http://127\.0\.0\.1:43110/.*", "ZeroNet"),
-        (r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*", "Yggdrasil"),
-        (r"http://.*\.(ipfs|ipns)\.localhost:8080/.*", "IPFS"),
+        ("ZeroNet", r"http://127\.0\.0\.1:43110/.*"),
+        ("Yggdrasil", r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*"),
+        ("IPFS", r"http://.*\.(ipfs|ipns)\.localhost:8080/.*"),
     ]
 
     def interceptRequest(self, info: QWebEngineUrlRequestInfo):
@@ -22,7 +22,7 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
             info.block(True)
 
     def verify_url(self, url):
-        url_patterns = [network[0] for network in NetworkInterceptor.ALLOWED_NETWORKS]
+        url_patterns = [network[1] for network in self.ALLOWED_NETWORKS]
         pattern = "|".join(url_patterns)
         return bool(re.match(pattern, url))
 
