@@ -14,6 +14,7 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
         ("ZeroNet", r"http://127\.0\.0\.1:43110/.*"),
         ("Yggdrasil", r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*"),
         ("IPFS", r"http://.*\.(ipfs|ipns)\.localhost:8080/.*"),
+        ("Tor", r"http://.*\.onion.*"),
     ]
 
     def interceptRequest(self, info: QWebEngineUrlRequestInfo):
@@ -61,9 +62,15 @@ class Browzero(QMainWindow):
         self.interceptor = NetworkInterceptor()
         self.view.page().setUrlRequestInterceptor(self.interceptor)
 
-    def handle_load_finished(self):
+    def handle_load_finished(self, ok):
         url = self.view.url().toString()
-        if self.interceptor.verify_url(url):  # Change this line
+        
+        # If the load finished unsuccessfully, navigate back
+        if not ok:
+            self.view.back()
+            return
+        
+        if self.interceptor.verify_url(url):
             history_file_path = os.path.expanduser("~/BrowzeroHistory.txt")
             with open(history_file_path, "w") as f:
                 f.write(url)
