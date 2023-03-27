@@ -44,9 +44,7 @@ class Browzero(QMainWindow):
         else:
             screen_resolution = QApplication.desktop().screenGeometry()
             width, height = screen_resolution.width(), screen_resolution.height()
-            x = int((width - 1920) / 2)
-            y = int((height - 1080) / 2)
-            self.setGeometry(x, y, 1920, 1080)
+            self.setGeometry(0, 0, width, height)
 
         self.view = QWebEngineView()
         self.view.loadFinished.connect(self.handle_load_finished)
@@ -98,15 +96,18 @@ class Browzero(QMainWindow):
 
     def clear_all_data(self):
         # Clear all browsing data
+        self.view.page().profile().clearAllVisitedLinks()
         self.view.page().profile().clearHttpCache()
         self.view.page().profile().cookieStore().deleteAllCookies()
         self.clear_local_storage()  # New method to clear local storage
 
     def clear_local_storage(self):
-        profile_storage_path = self.view.page().profile().storageName()
-        local_storage_path = os.path.join(profile_storage_path, 'Local Storage')
-        if os.path.exists(local_storage_path):
-            shutil.rmtree(local_storage_path)
+        # Clear local storage by navigating to a blank page
+        self.view.load(QUrl("about:blank"))
+        self.view.page().profile().clearAllVisitedLinks()
+        self.view.page().profile().clearAllStorageAccess()
+        self.view.page().profile().clearHttpCache()
+        self.view.page().profile().cookieStore().deleteAllCookies()
 
 
 def main():
