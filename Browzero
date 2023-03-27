@@ -3,8 +3,9 @@
 import os
 import sys
 import re
-from PyQt5.QtCore import QUrl, QRect, QPoint, QSize, QByteArray, Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow
+import shutil
+from PyQt5.QtCore import QUrl, QRect, QPoint, QSize, QByteArray, Qt, QSettings
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QAction
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestInfo
 
@@ -35,16 +36,9 @@ class Browzero(QMainWindow):
 
         self.setWindowTitle("Browzero")
 
-        # Load last saved geometry from file
-        geometry_file_path = os.path.expanduser("~/BrowzeroGeometry.txt")
-        last_geometry = QByteArray()
-        try:
-            with open(geometry_file_path, "rb") as f:
-                last_geometry = QByteArray(f.read())
-        except FileNotFoundError:
-            pass
-
-        # Set window geometry
+        # Load last saved geometry from QSettings
+        settings = QSettings("Browzero", "Browzero")
+        last_geometry = settings.value("geometry", QByteArray())
         if not last_geometry.isEmpty():
             self.restoreGeometry(last_geometry)
         else:
@@ -63,17 +57,29 @@ class Browzero(QMainWindow):
         self.interceptor = NetworkInterceptor()
         self.view.page().setUrlRequestInterceptor(self.interceptor)
 
+        # Add context menu
+        self.context_menu = QMenu(self)
+        self.back_action = QAction("Back", self)
+        self.back_action.triggered.connect(self.view.back)
+        self.context_menu.addAction(self.back_action)
+        self.forward_action = QAction("Forward", self)
+        self.forward_action.triggered.connect(self.view.forward)
+        self.context_menu.addAction(self.forward_action)
+        self.home_action = QAction("Home", self)
+        self.home_action.triggered.connect(self.go_home)
+        self.context_menu.addAction(self.home_action)
+        self.clear_data_action = QAction("Clear All Data", self)
+        self.clear_data_action.triggered.connect(self.clear_all_data)
+        self.context_menu.addAction(self.clear_data_action)
+        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self.show_context_menu)
+
     def handle_load_finished(self):
         url = self.view.url().toString()
-        if self.interceptor.verify_url(url):  # Change this line
-            history_file_path = os.path.expanduser("~/BrowzeroHistory.txt")
-            with open(history_file_path, "w") as f:
-                f.write(url)
-
-            # Save current window geometry to file
-            geometry_file_path = os.path.expanduser("~/BrowzeroGeometry.txt")
-            with open(geometry_file_path, "wb") as f:
-                f.write(self.saveGeometry())
+        if self.interceptor.verify_url(url):
+            # Save current window geometry to QSettings
+            settings = QSettings("Browzero", "Browzero")
+            settings.setValue("geometry", self.saveGeometry())
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_F11:
@@ -84,20 +90,34 @@ class Browzero(QMainWindow):
         else:
             super().keyPressEvent(event)
 
+    def show_context_menu(self, pos):
+        self.context_menu.exec_(self.view.mapToGlobal(pos))
+
+    def go_home(self):
+        self.view.load(QUrl("http://127.0.0.1:43110/"))
+
+    def clear_all_data(self):
+        # Clear all browsing data
+        self.view.page().profile().clearHttpCache()
+        self.view.page().profile().cookieStore().deleteAllCookies()
+        self.clear_local_storage()  # New method to clear local storage
+
+    def clear_local_storage(self):
+        profile_storage_path = self.view.page().profile().storageName()
+        local_storage_path = os.path.join(profile_storage_path, 'Local Storage')
+        if os.path.exists(local_storage_path):
+            shutil.rmtree(local_storage_path)
+
 
 def main():
     app = QApplication(sys.argv)
     window = Browzero()
 
-    history_file_path = os.path.expanduser("~/BrowzeroHistory.txt")
-    last_site = "http://127.0.0.1:43110/"
-    try:
-        with open(history_file_path, "r") as f:
-            last_site = f.read().strip()
-    except FileNotFoundError:
-        pass
-
+    # Load last saved site from QSettings
+    settings = QSettings("Browzero", "Browzero")
+    last_site = settings.value("last_site", "http://127.0.0.1:43110/")
     window.view.load(QUrl(last_site))
+
     window.showFullScreen()
 
     # Center window vertically
