@@ -131,7 +131,16 @@ class Browzero(QMainWindow):
         if self.interceptor.verify_url(url):
             # Save current window geometry to QSettings
             settings = QSettings("Browzero", "Browzero")
-            settings.setValue("geometry", self.saveGeometry())
+            
+            # Save only the x position and width of the window
+            settings.setValue("geometry_x", self.geometry().x())
+            settings.setValue("geometry_width", self.geometry().width())
+
+            # Restore the saved height and y position
+            screen_resolution = QApplication.desktop().screenGeometry()
+            height = screen_resolution.height()
+            settings.setValue("geometry_height", height)
+            settings.setValue("geometry_y", 0)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_F11:
@@ -180,7 +189,7 @@ class Browzero(QMainWindow):
         user_choice = clear_confirmation.exec_()
 
         if user_choice == QMessageBox.Yes:
-            self.clear_all_data()
+            self.clear_all_data()  # Call the clear_all_data method here
             self.context_menu.hide()  # Hide the context menu after clearing data
 
     def clear_local_storage(self):
@@ -269,14 +278,19 @@ def main():
     last_site = settings.value("last_site", "http://127.0.0.1:43110/")
     window.view.load(QUrl(last_site))
 
-    window.showFullScreen()
+    # Restore the saved geometry
+    settings = QSettings("Browzero", "Browzero")
+    last_x = settings.value("geometry_x", 0)
+    last_width = settings.value("geometry_width", QApplication.desktop().screenGeometry().width())
+    last_height = settings.value("geometry_height", QApplication.desktop().screenGeometry().height())
+    last_y = settings.value("geometry_y", 0)
+    window.setGeometry(int(last_x), int(last_y), int(last_width), int(last_height))
 
-    # Center window vertically
-    screen_resolution = QApplication.desktop().screenGeometry()
-    width, height = screen_resolution.width(), screen_resolution.height()
-    x = int((width - window.width()) / 2)
-    y = int((height - window.height()) / 2)
-    window.move(x, y)
+    # If fullscreen is not desired on startup, remove the following line
+    window.setWindowState(window.windowState() | Qt.WindowFullScreen)
+
+    # Add the missing show() call
+    window.show()
 
     sys.exit(app.exec_())
 
