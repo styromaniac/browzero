@@ -196,28 +196,11 @@ class Browzero(QMainWindow):
         allowed_networks = self.select_allowed_networks()
         self.interceptor.set_allowed_networks(allowed_networks)
 
-    def select_allowed_networks(self):
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Select Allowed Networks")
-        dialog.setFixedSize(300, 200)
-
-        layout = QVBoxLayout(dialog)
-
-        checkboxes = []
-        for network in NetworkInterceptor.ALLOWED_NETWORKS:
-            checkbox = QCheckBox(network[0], dialog)
-            layout.addWidget(checkbox)
-            checkboxes.append(checkbox)
-
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
-        button_box.accepted.connect(dialog.accept)
-        button_box.rejected.connect(dialog.reject)
-        layout.addWidget(button_box)
-
-        if dialog.exec_() == QDialog.Accepted:
-            return [checkbox.text() for checkbox in checkboxes if checkbox.isChecked()]
-        else:
-            return self.interceptor.get_allowed_networks()
+    def show_network_selection_dialog(self):
+        network_selection_dialog = NetworkSelectionDialog(self)
+        if network_selection_dialog.exec_() == QDialog.Accepted:
+            allowed_networks = [checkbox.text() for checkbox in network_selection_dialog.checkboxes if checkbox.isChecked()]
+            self.interceptor.set_allowed_networks(allowed_networks)
 
     def show_address_bar(self):
         current_url = self.view.url().toString()
