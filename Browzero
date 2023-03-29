@@ -47,7 +47,11 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
         ("Yggdrasil", r"http://\[.*:.*:.*:.*:.*:.*:.*:.*\].*"),
         ("IPFS", r"http://.*\.(ipfs|ipns)\.localhost:8080/.*"),
         ("Tor", r"https?://.*\.onion.*"),
-        ("Lokinet", r"http://.*\.loki/.*"),
+        ("Lokinet", r"https?://.*\.loki/.*"),
+        ("Freenet", r"http://127\.0\.0\.1:8888/.*"),
+        ("Tahoe-LAFS", r"http://localhost:3456/uri/.*"),
+        ("GNUnet", r"http://localhost:7776/.*"),
+        ("I2P", r"http://.*\.i2p/.*"),
     ]
 
     def __init__(self, allowed_networks=None):
