@@ -5,11 +5,9 @@ import sys
 import re
 import shutil
 from PyQt5.QtCore import QUrl, QRect, QPoint, QSize, QByteArray, Qt, QSettings
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QAction, QDialog, QVBoxLayout, QLabel, QCheckBox, QPushButton, QDialogButtonBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMenu, QAction, QDialog, QVBoxLayout, QLabel, QCheckBox, QPushButton, QDialogButtonBox, QMessageBox, QHBoxLayout, QInputDialog
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor, QWebEngineUrlRequestInfo
-from PyQt5.QtWidgets import QInputDialog
-from PyQt5.QtWidgets import QMessageBox, QPushButton, QHBoxLayout
 
 
 class NetworkSelectionDialog(QDialog):
