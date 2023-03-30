@@ -1,4 +1,4 @@
-![browzero](https://user-images.githubusercontent.com/43807387/228711272-2335f8ff-3b6d-4d97-a01f-04e470a0a81d.svg)
+<img src="https://user-images.githubusercontent.com/43807387/228711272-2335f8ff-3b6d-4d97-a01f-04e470a0a81d.svg" width="200" />
 
 # browzero
 Browser for the dark web
