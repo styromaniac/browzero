@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=browzero
+Exec=/usr/local/sbin/browzero
+Icon=/usr/share/icons/hicolor/scalable/apps/browzero.svg
+Terminal=false
+StartupNotify=true
