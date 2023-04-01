@@ -271,31 +271,32 @@ def main():
     if network_selection_dialog.exec_() == QDialog.Accepted:
         allowed_networks = [checkbox.text() for checkbox in network_selection_dialog.checkboxes if checkbox.isChecked()]
 
-    # Initialize network interceptor with selected networks
-    window.interceptor = NetworkInterceptor(allowed_networks)
-    window.view.page().setUrlRequestInterceptor(window.interceptor)
+        # Initialize network interceptor with selected networks
+        window.interceptor = NetworkInterceptor(allowed_networks)
+        window.view.page().setUrlRequestInterceptor(window.interceptor)
 
-    # Load last saved site from QSettings
-    settings = QSettings("browzero", "browzero")
-    last_site = settings.value("last_site", "http://127.0.0.1:43110/")
-    window.view.load(QUrl(last_site))
+        # Load last saved site from QSettings
+        settings = QSettings("browzero", "browzero")
+        last_site = settings.value("last_site", "http://127.0.0.1:43110/")
+        window.view.load(QUrl(last_site))
 
-    # Restore the saved geometry
-    settings = QSettings("browzero", "browzero")
-    last_x = settings.value("geometry_x", 0)
-    last_width = settings.value("geometry_width", QApplication.desktop().screenGeometry().width())
-    last_height = settings.value("geometry_height", QApplication.desktop().screenGeometry().height())
-    last_y = settings.value("geometry_y", 0)
-    window.setGeometry(int(last_x), int(last_y), int(last_width), int(last_height))
+        # Restore the saved geometry
+        settings = QSettings("browzero", "browzero")
+        last_x = settings.value("geometry_x", 0)
+        last_width = settings.value("geometry_width", QApplication.desktop().screenGeometry().width())
+        last_height = settings.value("geometry_height", QApplication.desktop().screenGeometry().height())
+        last_y = settings.value("geometry_y", 0)
+        window.setGeometry(int(last_x), int(last_y), int(last_width), int(last_height))
 
-    # If fullscreen is not desired on startup, remove the following line
-    window.setWindowState(window.windowState() | Qt.WindowFullScreen)
+        # If fullscreen is not desired on startup, remove the following line
+        window.setWindowState(window.windowState() | Qt.WindowFullScreen)
 
-    # Add the missing show() call
-    window.show()
+        # Add the missing show() call
+        window.show()
 
-    sys.exit(app.exec_())
-
+        sys.exit(app.exec_())
+    else:
+        sys.exit(0)  # Exit the application if the network selection dialog is closed without selection
 
 if __name__ == "__main__":
     main()
