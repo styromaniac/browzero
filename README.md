@@ -1,4 +1,4 @@
-<img src="https://user-images.githubusercontent.com/43807387/228894570-63b96c84-1a84-4fa5-a0f3-f5a7a023f4e5.svg" width="200" />
+<img src="https://raw.githubusercontent.com/styromaniac/browzero/main/browzero.svg" width="200" />
 
 # browzero
 Browser for the dark web
