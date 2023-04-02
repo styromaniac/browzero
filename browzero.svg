@@ -5,8 +5,8 @@
       <stop offset="100%" style="stop-color:#8C00EB;stop-opacity:1" />
     </linearGradient>
     <filter id="dropshadow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
-      <feOffset dx="0" dy="0" result="offsetblur" />
+      <feGaussianBlur in="SourceAlpha" stdDeviation="15" />
+      <feOffset dx="2.5" dy="4.5" result="offsetblur" />
       <feFlood flood-color="#000" flood-opacity="1" />
       <feComposite in2="offsetblur" operator="in" />
       <feMerge>
