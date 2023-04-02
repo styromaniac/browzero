@@ -1,4 +1,6 @@
-<img src="https://raw.githubusercontent.com/styromaniac/browzero/main/browzero.svg" width="200" />
+<p align="center">
+  <img src="https://raw.githubusercontent.com/styromaniac/browzero/main/browzero.svg" width="200" />
+</p>
 
 # browzero
 Browser for the dark web
