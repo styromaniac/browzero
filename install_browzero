@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+import os
+import platform
+import requests
+import shutil
+
+BROWZERO_SCRIPT_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero"
+BROWZERO_ICON_LINUX_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero.svg"
+BROWZERO_ICON_MACOS_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero_macos.icns"
+BROWZERO_ICON_WINDOWS_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero_windows.ico"
+
+def download_file(url, output_path):
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+
+    with open(output_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+
+def install():
+    os_name = platform.system()
+
+    if os_name == "Linux":
+        install_path = "/usr/local/sbin"
+        icon_path = "/usr/share/icons/hicolor/scalable/apps"
+        desktop_entry_path = "/usr/share/applications/browzero.desktop"
+        icon_url = BROWZERO_ICON_LINUX_URL
+        icon_filename = "browzero.svg"
+    elif os_name == "Darwin":
+        install_path = "/usr/local/bin"
+        icon_path = os.path.expanduser("~/Applications/browzero.app/Contents/Resources")
+        desktop_entry_path = os.path.expanduser("~/Applications/browzero.app/Contents/Info.plist")
+        icon_url = BROWZERO_ICON_MACOS_URL
+        icon_filename = "browzero.icns"
+    elif os_name == "Windows":
+        install_path = os.path.join(os.environ["PROGRAMFILES"], "browzero")
+        icon_path = install_path
+        desktop_entry_path = None
+        icon_url = BROWZERO_ICON_WINDOWS_URL
+        icon_filename = "browzero.ico"
+    else:
+        print("Unsupported operating system")
+        return
+
+    browzero_script_path = os.path.join(install_path, "browzero")
+    browzero_icon_path = os.path.join(icon_path, icon_filename)
+
+    os.makedirs(install_path, exist_ok=True)
+    os.makedirs(icon_path, exist_ok=True)
+
+    print("Downloading browzero script...")
+    download_file(BROWZERO_SCRIPT_URL, browzero_script_path)
+
+    print("Downloading browzero icon...")
+    download_file(icon_url, browzero_icon_path)
+
+    if os_name == "Linux":
+        desktop_entry_content = f"""[Desktop Entry]
+Version=1.0
+Type=Application
+Name=browzero
+Exec=python3 {browzero_script_path}
+Icon={browzero_icon_path}
+Terminal=false
+StartupNotify=true
+"""
+
+        with open(desktop_entry_path, "w") as desktop_entry_file:
+            desktop_entry_file.write(desktop_entry_content)
+
+    elif os_name == "Darwin":
+        plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>/usr/bin/python3 {browzero_script_path}</string>
+    <key>CFBundleIconFile</key>
+    <string>{icon_filename}</string>
+    <key>CFBundleName</key>
+    <string>browzero</string>
+</dict>
+</plist>
+"""
+
+        with open(desktop_entry_path, "w") as plist_file:
+            plist_file.write(plist_content)
+
+    print("browzero has been installed successfully")
+
+if __name__ == "__main__":
+    install()
