@@ -74,14 +74,14 @@ class NetworkInterceptor(QWebEngineUrlRequestInterceptor):
         self.ALLOWED_NETWORKS = [net for net in NetworkInterceptor.ALLOWED_NETWORKS if net[0] in allowed_networks]
 
 
-class browzero(QMainWindow):
+class Browzero(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("browzero")
+        self.setWindowTitle("Browzero")
 
         # Load last saved geometry from QSettings
-        settings = QSettings("browzero", "browzero")
+        settings = QSettings("Browzero", "Browzero")
         last_geometry = settings.value("geometry", QByteArray())
         if not last_geometry.isEmpty():
             self.restoreGeometry(last_geometry)
@@ -132,7 +132,7 @@ class browzero(QMainWindow):
         url = self.view.url().toString()
         if self.interceptor.verify_url(url):
             # Save current window geometry to QSettings
-            settings = QSettings("browzero", "browzero")
+            settings = QSettings("Browzero", "Browzero")
             
             # Save only the x position and width of the window
             settings.setValue("geometry_x", self.geometry().x())
@@ -237,7 +237,7 @@ class browzero(QMainWindow):
     def quit_application(self):
         quit_confirmation = QMessageBox(self)
         quit_confirmation.setWindowTitle("Confirm Quit")
-        quit_confirmation.setText("Are you sure you want to quit browzero?")
+        quit_confirmation.setText("Are you sure you want to quit Browzero?")
         
         # Remove standard buttons
         quit_confirmation.setStandardButtons(QMessageBox.NoButton)
@@ -264,7 +264,7 @@ class browzero(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    window = browzero()
+    window = Browzero()
 
     # Show network selection dialog
     network_selection_dialog = NetworkSelectionDialog(window)
@@ -276,12 +276,12 @@ def main():
         window.view.page().setUrlRequestInterceptor(window.interceptor)
 
         # Load last saved site from QSettings
-        settings = QSettings("browzero", "browzero")
+        settings = QSettings("Browzero", "Browzero")
         last_site = settings.value("last_site", "http://127.0.0.1:43110/")
         window.view.load(QUrl(last_site))
 
         # Restore the saved geometry
-        settings = QSettings("browzero", "browzero")
+        settings = QSettings("Browzero", "Browzero")
         last_x = settings.value("geometry_x", 0)
         last_width = settings.value("geometry_width", QApplication.desktop().screenGeometry().width())
         last_height = settings.value("geometry_height", QApplication.desktop().screenGeometry().height())

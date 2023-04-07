@@ -58,7 +58,7 @@ def install():
         desktop_entry_content = f"""[Desktop Entry]
 Version=1.0
 Type=Application
-Name=browzero
+Name=Browzero
 Exec=python3 {browzero_script_path}
 Icon={browzero_icon_path}
 Terminal=false
