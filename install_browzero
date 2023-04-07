@@ -6,8 +6,8 @@ import shutil
 
 BROWZERO_SCRIPT_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero"
 BROWZERO_ICON_LINUX_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero.svg"
-BROWZERO_ICON_MACOS_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero_macos.icns"
-BROWZERO_ICON_WINDOWS_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero_windows.ico"
+BROWZERO_ICON_MACOS_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero.icns"
+BROWZERO_ICON_WINDOWS_URL = "https://raw.githubusercontent.com/styromaniac/browzero/main/browzero.ico"
 
 def download_file(url, output_path):
     response = requests.get(url, stream=True)
