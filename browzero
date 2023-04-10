@@ -32,7 +32,7 @@ class NetworkSelectionDialog(QDialog):
         self.setLayout(layout)
 
         # Set a minimum width for the dialog
-        self.setMinimumWidth(200)
+        self.setMinimumWidth(275)
 
     def update_submit_button(self):
         at_least_one_checked = any(checkbox.isChecked() for checkbox in self.checkboxes)
