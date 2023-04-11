@@ -63,6 +63,7 @@ Exec=python3 {browzero_script_path}
 Icon={browzero_icon_path}
 Terminal=false
 StartupNotify=true
+Categories=WebBrowser
 """
 
         with open(desktop_entry_path, "w") as desktop_entry_file:
