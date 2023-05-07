@@ -6,7 +6,7 @@
     </linearGradient>
     <filter id="dropshadow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="16" />
-      <feOffset dx="5" dy="8.66" result="offsetblur" />
+      <feOffset dx="5.196" dy="9" result="offsetblur" />
       <feFlood flood-color="#000" flood-opacity="1" />
       <feComposite in2="offsetblur" operator="in" />
       <feMerge>
