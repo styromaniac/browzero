@@ -131,18 +131,13 @@ class Browzero(QMainWindow):
     def handle_load_finished(self):
         url = self.view.url().toString()
         if self.interceptor.verify_url(url):
+            # Save the title of the webpage to the title bar
+            title = self.view.page().title()
+            self.setWindowTitle(f"Browzero - {title}")
+
             # Save current window geometry to QSettings
             settings = QSettings("Browzero", "Browzero")
-            
-            # Save only the x position and width of the window
-            settings.setValue("geometry_x", self.geometry().x())
-            settings.setValue("geometry_width", self.geometry().width())
-
-            # Restore the saved height and y position
-            screen_resolution = QApplication.desktop().screenGeometry()
-            height = screen_resolution.height()
-            settings.setValue("geometry_height", height)
-            settings.setValue("geometry_y", 0)
+            settings.setValue("geometry", self.saveGeometry())
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_F11:
@@ -204,14 +199,17 @@ class Browzero(QMainWindow):
         self.view.page().runJavaScript("window.localStorage.clear();")
 
     def show_network_selection_dialog(self):
-        allowed_networks = self.select_allowed_networks()
-        self.interceptor.set_allowed_networks(allowed_networks)
-
-    def show_network_selection_dialog(self):
         network_selection_dialog = NetworkSelectionDialog(self)
         if network_selection_dialog.exec_() == QDialog.Accepted:
             allowed_networks = [checkbox.text() for checkbox in network_selection_dialog.checkboxes if checkbox.isChecked()]
             self.interceptor.set_allowed_networks(allowed_networks)
+
+    def select_allowed_networks(self):
+        network_selection_dialog = NetworkSelectionDialog(self)
+        if network_selection_dialog.exec_() == QDialog.Accepted:
+            allowed_networks = [checkbox.text() for checkbox in network_selection_dialog.checkboxes if checkbox.isChecked()]
+            return allowed_networks
+        return []
 
     def show_address_bar(self):
         current_url = self.view.url().toString()
